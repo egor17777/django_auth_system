@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel = "stylesheet" href = "{% static 'Authentication/css/singup.css' %}">
+</head>
+<body>
+    {% if got_error %}
+        <p>Введите имя!</p>
+    {% endif %}
+    <form action="/singup" method="post">
+        <h2>Sing up</h2>
+        {% csrf_token %}
+        {% for filed in form %}
+        <div class = "form-style {% if filed.errors %}errors{% endif %}">
+            {{filed.label_tag}}
+            {{filed.errors}}
+            {{filed}}
+        </div>
+        {% endfor %}
+        
+        <Button type="submit">Submit</Button>
+</body>
+</html>

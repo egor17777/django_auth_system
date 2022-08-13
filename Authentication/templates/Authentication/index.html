@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel = "stylesheet" href = "{% static 'Authentication/css/index.css' %}">
+</head>
+<body>
+    <img src="{% static 'Authentication/img/background.jpg' %}" alt="Snow" style="width:100%">
+    
+    <div class="auth">
+        
+        <a href="/login">
+            <button>Log in</button>
+        </a>
+        <br><br>
+        <a href="/singup">
+            <button>Sing up</button>
+        </a>
+    </div>
+</body>
+</html>
