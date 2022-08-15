@@ -5,4 +5,5 @@ urlpatterns = [
     path('singup', views.singup),
     path('login', views.login),
     path('account', views.account),
+    path('singout', views.singout),
 ]
