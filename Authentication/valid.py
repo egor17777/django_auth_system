@@ -1,4 +1,10 @@
 from string import ascii_letters
+from .models import User
+import base64, hmac, hashlib
+
+
+SECRET_KEY = "a05f2a0015e3b66bb740f1df1e60eef17e0d59f066fa4e1933a1387e475b7986"
+PASSWORD_SALT = '768d6ff9470a6befffaade6d0419f4aed7ee0fc008ba7515be7f2bc76cba1b40'
 
 def is_include_digit(passw: str) -> bool:
     for pas in passw:
@@ -55,3 +61,48 @@ def password_valid(self):
         self._errors['password'] = self.error_class(["↓ Your password is on the list of the easiest ↓"])
         return False
     return True
+
+def check_bd_nick(self):
+    nickname = self.cleaned_data['nickname']
+    try:
+        user = User.objects.get(nickname=nickname)
+    except Exception:
+        return True
+    self._errors['nickname'] = self.error_class(
+        ["↓ A user with this nickname is already registered ↓"])
+    return False
+
+
+def check_bd_email(self):
+    email = self.cleaned_data['email']
+    try:
+        user = User.objects.get(email=email)
+    except Exception:
+        return True
+    self._errors['email'] = self.error_class(
+        ["↓ A user with this email is already registered ↓"])
+    return False
+
+def sign_data(data: str) -> str:
+    """Возвращает подписанные данные"""
+    return hmac.new(
+        SECRET_KEY.encode(),
+        msg=data.encode(),
+        digestmod=hashlib.sha256
+    ).hexdigest().upper()
+
+def get_username_from_signed_string(username_singed: str):
+    try:
+        username_base64, sign = username_singed.split(".")
+        username = base64.b64decode(username_base64.encode()).decode()
+        valid_sign = sign_data(username)
+        if hmac.compare_digest(valid_sign, sign):
+            return username
+    except Exception:
+        return None
+
+def verify_password(password: str, user: User) -> bool:
+
+    password_hash = hashlib.sha256((password + PASSWORD_SALT).encode()).hexdigest().lower()
+    stored_password_hash=user.password.lower()
+    return password_hash == stored_password_hash

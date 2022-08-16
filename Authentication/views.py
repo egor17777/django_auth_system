@@ -1,20 +1,14 @@
-import hashlib
-from multiprocessing import context
+import base64, hmac, hashlib
+from urllib import response
 from django.shortcuts import render
 from .forms import SingupForm, LoginForm
 from django.http import HttpResponseRedirect
 from .models import User
-from django import forms
-from .valid import password_valid
+from .valid import *
 # Create your views here.
 
-PASSWORD_SALT = '768d6ff9470a6befffaade6d0419f4aed7ee0fc008ba7515be7f2bc76cba1b40'
 
-def verify_password(password: str, user: User) -> bool:
 
-    password_hash = hashlib.sha256((password + PASSWORD_SALT).encode()).hexdigest().lower()
-    stored_password_hash=user.password.lower()
-    return password_hash == stored_password_hash
 
 def index(request):
     try:
@@ -43,7 +37,8 @@ def singup(request):
                 )
                 feed.save()
                 response = HttpResponseRedirect('/account')
-                username_signed = form.cleaned_data['nickname']
+                username = form.cleaned_data['nickname']
+                username_signed = base64.b64encode(username.encode()).decode() + "." + sign_data(username)
                 response.set_cookie(key="username", value=username_signed)
                 return response
         else:
@@ -67,8 +62,10 @@ def login(request):
                 return render(request, "Authentication/login.html", context={'form': form})
             if verify_password(passw, user):
                 response = HttpResponseRedirect('/account')
-                username_signed = nik
+                username = nik
+                username_signed = base64.b64encode(username.encode()).decode() + "." + sign_data(username)
                 response.set_cookie(key="username", value=username_signed)
+
                 return response
         else:
             form = LoginForm()
@@ -78,35 +75,19 @@ def login(request):
 def account(request):
     try:
         value = request.COOKIES['username']
-        info = User.objects.get(nickname=value)
+        valid_username = get_username_from_signed_string(value)
+        info = User.objects.get(nickname=valid_username)
         return render(request, "Authentication/account.html",context={'info': info})
-    except KeyError:
-        return HttpResponseRedirect('/')
+    except Exception:
+        response = HttpResponseRedirect('/')
+        response.delete_cookie(key="username")
+        return response
     
 def singout(request):
     response = HttpResponseRedirect('/')
     response.delete_cookie(key="username")
     return response
 
-def check_bd_nick(self):
-    nickname = self.cleaned_data['nickname']
-    try:
-        user = User.objects.get(nickname=nickname)
-    except Exception:
-        return True
-    self._errors['nickname'] = self.error_class(
-        ["↓ A user with this nickname is already registered ↓"])
-    return False
 
-
-def check_bd_email(self):
-    email = self.cleaned_data['email']
-    try:
-        user = User.objects.get(email=email)
-    except Exception:
-        return True
-    self._errors['email'] = self.error_class(
-        ["↓ A user with this email is already registered ↓"])
-    return False
 
 
