@@ -22,6 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-nho)20*v(y&5yg26_26tztg5s!e@o!1q$p^0)5=5jm(r!@3z8#'
 
+CAPTCHA_IMAGE_SIZE = [415,75]
+CAPTCHA_FONT_SIZE =60
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -38,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Authentication',
+    'captcha',
 ]
 
 MIDDLEWARE = [

@@ -14,7 +14,7 @@
         <h2>Sing up</h2>
         {% csrf_token %}
         {% for filed in form %}
-        <div class = "form-style {% if filed.errors %}errors{% endif %}">
+        <div class = "form-style {{filed.name}} {% if filed.errors %}errors{% endif %}">
             {{filed.label_tag}}
             {{filed.errors}}
             {{filed}}
